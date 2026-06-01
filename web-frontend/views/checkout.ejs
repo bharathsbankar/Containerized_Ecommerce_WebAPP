@@ -216,8 +216,8 @@
 
         async function executeCheckoutRequest() {
             try {
-                // Post payment transaction to Order service (mapped to host port 8082)
-                const response = await fetch('http://localhost:8082/api/orders', {
+                // Post payment transaction to Order service (proxied via Node.js BFF)
+                const response = await fetch('/api/orders', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

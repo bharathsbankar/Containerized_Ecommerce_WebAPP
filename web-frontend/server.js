@@ -5,16 +5,20 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Catalog Service internal endpoint within the shared 'api_net' Docker network
+// Internal Catalog and Order Service endpoints inside the Docker 'api_net' network
 const CATALOG_SERVICE_URL = process.env.CATALOG_SERVICE_URL || 'http://catalog-service:8081/api/products';
+const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service:8082/api/orders';
 
 // Set up template engine (EJS)
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Serve static assets if any
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
+
+// =========================================================================
+// FRONTEND VIEWS
+// =========================================================================
 
 // Home Page: Fetch inventory from Catalog Service and render
 app.get('/', async (req, res) => {
@@ -86,6 +90,68 @@ app.get('/checkout', async (req, res) => {
     }
 });
 
+// =========================================================================
+// SECURE BFF PROXY MAPPINGS (Routes AJAX calls internally over Docker network)
+// =========================================================================
+
+// Proxy Order Creation to Private Order Microservice
+app.post('/api/orders', async (req, res) => {
+    try {
+        console.log(`Proxying order creation payload to: ${ORDER_SERVICE_URL}`);
+        const response = await axios.post(ORDER_SERVICE_URL, req.body);
+        res.status(response.status).json(response.data);
+    } catch (err) {
+        console.error('Error proxying order creation:', err.message);
+        const status = err.response?.status || 500;
+        const data = err.response?.data || { message: err.message };
+        res.status(status).json(data);
+    }
+});
+
+// Proxy Product Creation to Private Catalog Microservice
+app.post('/api/products', async (req, res) => {
+    try {
+        console.log(`Proxying product creation payload to: ${CATALOG_SERVICE_URL}`);
+        const response = await axios.post(CATALOG_SERVICE_URL, req.body);
+        res.status(response.status).json(response.data);
+    } catch (err) {
+        console.error('Error proxying product creation:', err.message);
+        const status = err.response?.status || 500;
+        const data = err.response?.data || { message: err.message };
+        res.status(status).json(data);
+    }
+});
+
+// Proxy Product Update to Private Catalog Microservice
+app.put('/api/products/:id', async (req, res) => {
+    try {
+        const targetUrl = `${CATALOG_SERVICE_URL}/${req.params.id}`;
+        console.log(`Proxying product update payload to: ${targetUrl}`);
+        const response = await axios.put(targetUrl, req.body);
+        res.status(response.status).json(response.data);
+    } catch (err) {
+        console.error(`Error proxying product update for ID ${req.params.id}:`, err.message);
+        const status = err.response?.status || 500;
+        const data = err.response?.data || { message: err.message };
+        res.status(status).json(data);
+    }
+});
+
+// Proxy Product Deletion to Private Catalog Microservice
+app.delete('/api/products/:id', async (req, res) => {
+    try {
+        const targetUrl = `${CATALOG_SERVICE_URL}/${req.params.id}`;
+        console.log(`Proxying product deletion to: ${targetUrl}`);
+        const response = await axios.delete(targetUrl);
+        res.status(response.status).json(response.data);
+    } catch (err) {
+        console.error(`Error proxying product deletion for ID ${req.params.id}:`, err.message);
+        const status = err.response?.status || 500;
+        const data = err.response?.data || { message: err.message };
+        res.status(status).json(data);
+    }
+});
+
 app.listen(PORT, () => {
-    console.log(`Web Frontend Express server listening on port ${PORT}`);
+    console.log(`Web Frontend Express server (with BFF Proxy Enabled) listening on port ${PORT}`);
 });
