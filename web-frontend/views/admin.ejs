@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalog Admin Panel | FlashDash Deals</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-rose-500 selection:text-white">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-slate-900/80 border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-2 group">
+                <span class="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-orange-400 to-amber-300">
+                    ⚡ FLASHDASH DEALS
+                </span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="/" class="text-sm font-semibold text-slate-400 hover:text-slate-200 transition">
+                    ← Back to Store Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        <!-- HEADER SECTION -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight text-slate-100">Inventory Catalog Admin</h1>
+                <p class="text-slate-400 text-sm mt-1">Add, edit, and terminate product inventory directly inside catalog_db.</p>
+            </div>
+            
+            <button 
+                onclick="openAddModal()"
+                class="px-5 py-3 rounded-xl font-bold bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white shadow-lg transition flex items-center justify-center space-x-2 self-start"
+            >
+                <span>➕ Add New Product</span>
+            </button>
+        </div>
+
+        <% if (error) { %>
+            <div class="bg-red-950/40 border border-red-500/30 text-red-300 px-6 py-5 rounded-2xl mb-8">
+                <p class="font-bold text-red-200 text-lg">Catalog Connection Fault</p>
+                <p class="text-sm mt-1 leading-relaxed"><%= error %></p>
+            </div>
+        <% } %>
+
+        <!-- PRODUCTS TABLE -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-800">
+                    <thead class="bg-slate-950/50">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest">ID</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest">Product Details</th>
+                            <th scope="col" class="px-6 py-4 class text-right text-xs font-bold text-slate-400 uppercase tracking-widest">Price</th>
+                            <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-widest">Stock Capacity</th>
+                            <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-widest">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60 bg-transparent">
+                        <% if (products && products.length > 0) { %>
+                            <% products.forEach(product => { %>
+                                <tr id="row-<%= product.id %>" class="hover:bg-slate-850/40 transition">
+                                    <!-- ID -->
+                                    <td class="px-6 py-5 whitespace-nowrap text-sm font-mono text-slate-500">
+                                        #<%= product.id %>
+                                    </td>
+                                    
+                                    <!-- Details -->
+                                    <td class="px-6 py-5">
+                                        <div class="font-bold text-slate-200 text-base"><%= product.name %></div>
+                                        <div class="text-slate-400 text-xs mt-1 max-w-lg leading-relaxed"><%= product.description %></div>
+                                    </td>
+                                    
+                                    <!-- Price -->
+                                    <td class="px-6 py-5 whitespace-nowrap text-right font-bold text-slate-200 text-base">
+                                        ₹<%= product.price.toFixed(2) %>
+                                    </td>
+                                    
+                                    <!-- Stock -->
+                                    <td class="px-6 py-5 whitespace-nowrap text-center">
+                                        <% if (product.stockQuantity > 0) { %>
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                <%= product.stockQuantity %> units
+                                            </span>
+                                        <% } else { %>
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                                                Out of Stock
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                    
+                                    <!-- Actions -->
+                                    <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                        <button 
+                                            onclick="openEditModal(<%= JSON.stringify(product) %>)"
+                                            class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
+                                        >
+                                            ✏️ Edit
+                                        </button>
+                                        <button 
+                                            onclick="deleteProduct(<%= product.id %>)"
+                                            class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-950/40 hover:bg-rose-900/40 text-rose-400 border border-rose-500/20 transition"
+                                        >
+                                            🗑️ Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                                    No products found inside the catalog database. Click "Add New Product" to seed inventory!
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ADD PRODUCT OVERLAY MODAL -->
+    <div id="add-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-8 shadow-2xl relative overflow-hidden transform transition-all">
+            <h2 class="text-2xl font-extrabold tracking-tight text-slate-100 mb-6">Create New Catalog Product</h2>
+            
+            <form onsubmit="submitAddForm(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Product Name</label>
+                    <input type="text" id="add-name" required class="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-rose-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Description</label>
+                    <textarea id="add-desc" rows="3" required class="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-rose-500 transition"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Price (INR)</label>
+                        <input type="number" id="add-price" step="0.01" min="0" required class="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-rose-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Stock Capacity</label>
+                        <input type="number" id="add-stock" min="0" required class="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-rose-500 transition">
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 mt-8 pt-4">
+                    <button type="button" onclick="closeAddModal()" class="w-1/2 py-3 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 transition">Cancel</button>
+                    <button type="submit" class="w-1/2 py-3 rounded-xl font-bold bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white transition">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT PRODUCT OVERLAY MODAL -->
+    <div id="edit-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-8 shadow-2xl relative overflow-hidden transform transition-all">
+            <h2 class="text-2xl font-extrabold tracking-tight text-slate-100 mb-6">Modify Product Specifications</h2>
+            
+            <form onsubmit="submitEditForm(event)" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Product Name</label>
+                    <input type="text" id="edit-name" required class="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-rose-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Description</label>
+                    <textarea id="edit-desc" rows="3" required class="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-rose-500 transition"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Price (INR)</label>
+                        <input type="number" id="edit-price" step="0.01" min="0" required class="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-rose-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Stock Capacity</label>
+                        <input type="number" id="edit-stock" min="0" required class="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-rose-500 transition">
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 mt-8 pt-4">
+                    <button type="button" onclick="closeEditModal()" class="w-1/2 py-3 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 transition">Cancel</button>
+                    <button type="submit" class="w-1/2 py-3 rounded-xl font-bold bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white transition">Update Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-6 text-center text-sm text-slate-500">
+        <p>&copy; 2026 FlashDash Deals Inc. Catalog Inventory Control.</p>
+    </footer>
+
+    <!-- CLIENT SIDE CRUD FUNCTIONS -->
+    <script>
+        const CATALOG_URL = "http://localhost:8081/api/products";
+
+        // ADD MODAL CONTROLS
+        function openAddModal() {
+            document.getElementById('add-modal').classList.remove('hidden');
+        }
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+        }
+
+        // EDIT MODAL CONTROLS
+        function openEditModal(product) {
+            document.getElementById('edit-id').value = product.id;
+            document.getElementById('edit-name').value = product.name;
+            document.getElementById('edit-desc').value = product.description;
+            document.getElementById('edit-price').value = product.price;
+            document.getElementById('edit-stock').value = product.stockQuantity;
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        // SUBMIT ADD
+        async function submitAddForm(event) {
+            event.preventDefault();
+            const name = document.getElementById('add-name').value;
+            const description = document.getElementById('add-desc').value;
+            const price = parseFloat(document.getElementById('add-price').value);
+            const stockQuantity = parseInt(document.getElementById('add-stock').value, 10);
+
+            try {
+                const response = await fetch(CATALOG_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description, price, stockQuantity })
+                });
+
+                if (response.ok) {
+                    alert("Product added successfully!");
+                    window.location.reload();
+                } else {
+                    alert("Failed to save product to catalog.");
+                }
+            } catch (err) {
+                alert("Error connecting to Catalog Service: " + err.message);
+            }
+        }
+
+        // SUBMIT EDIT
+        async function submitEditForm(event) {
+            event.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const name = document.getElementById('edit-name').value;
+            const description = document.getElementById('edit-desc').value;
+            const price = parseFloat(document.getElementById('edit-price').value);
+            const stockQuantity = parseInt(document.getElementById('edit-stock').value, 10);
+
+            try {
+                const response = await fetch(`${CATALOG_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description, price, stockQuantity })
+                });
+
+                if (response.ok) {
+                    alert("Product updated successfully!");
+                    window.location.reload();
+                } else {
+                    alert("Failed to modify product.");
+                }
+            } catch (err) {
+                alert("Error connecting to Catalog Service: " + err.message);
+            }
+        }
+
+        // DELETE PRODUCT
+        async function deleteProduct(productId) {
+            if (!confirm("Are you absolutely sure you want to delete this product? This will completely terminate it from store shelves.")) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${CATALOG_URL}/${productId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert("Product deleted successfully!");
+                    window.location.reload();
+                } else {
+                    alert("Failed to delete product.");
+                }
+            } catch (err) {
+                alert("Error communicating with Catalog Service: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

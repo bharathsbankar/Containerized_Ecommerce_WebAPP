@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashDash Deals | Premium Flash Sale</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-rose-500 selection:text-white">
+
+    <!-- STICKY GLASSMORPHIC HEADER -->
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-slate-800/80 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-2 group">
+                <span class="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-orange-400 to-amber-300 group-hover:opacity-90 transition">
+                    ⚡ FLASHDASH DEALS
+                </span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="/admin" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                    ⚙️ Admin Panel
+                </a>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 animate-pulse">
+                    Live Sale
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        <!-- INTRO BANNER -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 p-8 sm:p-12 mb-12 shadow-2xl">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-rose-500/15 rounded-full blur-3xl"></div>
+            <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl"></div>
+            
+            <div class="relative z-10 max-w-2xl">
+                <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
+                    Exclusive Deals, <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-amber-300">
+                        Insanely Limited Stocks.
+                    </span>
+                </h1>
+                <p class="text-slate-400 text-lg mb-6 leading-relaxed">
+                    Welcome to the ultimate shopping sprint. Once items hit zero, they are gone forever. Grab yours before someone else does!
+                </p>
+                <div class="flex flex-wrap gap-4 text-sm text-slate-400">
+                    <span class="flex items-center">🛡️ Secure Payments</span>
+                    <span class="flex items-center">⚡ Instant Order Placements</span>
+                    <span class="flex items-center">📦 Real-time stock reservation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ERROR STATE IF APPLICABLE -->
+        <% if (error) { %>
+            <div class="bg-red-950/40 border border-red-500/30 text-red-300 px-6 py-4 rounded-2xl mb-8 flex items-start space-x-3">
+                <span class="text-xl">⚠️</span>
+                <div>
+                    <p class="font-semibold text-red-200">System connectivity notice</p>
+                    <p class="text-sm mt-1 leading-relaxed"><%= error %></p>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- PRODUCTS GRID SECTION -->
+        <h2 class="text-2xl font-bold tracking-tight text-slate-200 mb-6 flex items-center space-x-2">
+            <span>🔥 Today's Offers</span>
+            <span class="h-1 w-12 bg-rose-500 rounded-full"></span>
+        </h2>
+
+        <% if (products && products.length > 0) { %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <% products.forEach(product => { %>
+                    <div class="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700/80 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-2xl">
+                        
+                        <!-- Product Details -->
+                        <div class="p-6">
+                            <!-- Stock status label -->
+                            <div class="flex items-center justify-between mb-4">
+                                <% if (product.stockQuantity > 0) { %>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                        <%= product.stockQuantity %> items remaining
+                                    </span>
+                                <% } else { %>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                                        Sold Out
+                                    </span>
+                                <% } %>
+                                <span class="text-xs text-slate-500">ID: <%= product.id %></span>
+                            </div>
+
+                            <h3 class="text-xl font-bold text-slate-100 group-hover:text-rose-400 transition-colors mb-2">
+                                <%= product.name %>
+                            </h3>
+                            
+                            <p class="text-slate-400 text-sm leading-relaxed mb-6 min-h-[3.5rem]">
+                                <%= product.description %>
+                            </p>
+                        </div>
+
+                        <!-- Action controls -->
+                        <div class="p-6 bg-slate-900/50 border-t border-slate-800/60 rounded-b-2xl mt-auto">
+                            <div class="flex items-baseline justify-between mb-5">
+                                <span class="text-xs text-slate-500 uppercase tracking-widest font-semibold">Price</span>
+                                <span class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-50 to-slate-200">
+                                    ₹<%= product.price.toFixed(2) %>
+                                </span>
+                            </div>
+
+                            <% if (product.stockQuantity > 0) { %>
+                                <!-- Interactive quantity selector -->
+                                <div class="flex flex-col space-y-4" id="controls-<%= product.id %>">
+                                    <div class="flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl p-1">
+                                        <button 
+                                            onclick="decrementQty(<%= product.id %>)"
+                                            id="minus-btn-<%= product.id %>"
+                                            disabled
+                                            class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-500 transition-all font-bold text-xl"
+                                        >
+                                            −
+                                        </button>
+                                        
+                                        <span id="qty-val-<%= product.id %>" class="font-bold text-lg text-slate-200">1</span>
+                                        
+                                        <button 
+                                            onclick="incrementQty(<%= product.id %>, <%= product.stockQuantity %>)"
+                                            id="plus-btn-<%= product.id %>"
+                                            <%= product.stockQuantity <= 1 ? 'disabled' : '' %>
+                                            class="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-500 transition-all font-bold text-xl"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+
+                                    <button 
+                                        onclick="buyNow(<%= product.id %>)"
+                                        class="w-full py-3 px-4 rounded-xl font-bold bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white shadow-lg shadow-rose-950/20 hover:shadow-rose-900/30 transition-all text-center"
+                                    >
+                                        Buy Now
+                                    </button>
+                                </div>
+                            <% } else { %>
+                                <!-- Sold Out Red Badge -->
+                                <div class="w-full py-4 text-center rounded-xl font-extrabold uppercase tracking-wider bg-rose-950/40 text-rose-400 border border-rose-500/20">
+                                    Out Of Stock
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else if (!error) { %>
+            <div class="text-center py-20 bg-slate-900/20 border border-dashed border-slate-800 rounded-3xl">
+                <span class="text-4xl">📭</span>
+                <p class="text-slate-400 text-lg mt-4">The shelves are empty. Check back for the next sale!</p>
+            </div>
+        <% } %>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-6 text-center text-sm text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2026 FlashDash Deals Inc. Optimized for high performance and sub-millisecond checkouts.</p>
+        </div>
+    </footer>
+
+    <!-- CLIENT SIDE QUANTITY CONTROLLER -->
+    <script>
+        const selectedQuantities = {};
+
+        function incrementQty(productId, maxStock) {
+            if (!selectedQuantities[productId]) {
+                selectedQuantities[productId] = 1;
+            }
+
+            if (selectedQuantities[productId] < maxStock) {
+                selectedQuantities[productId]++;
+                document.getElementById(`qty-val-${productId}`).innerText = selectedQuantities[productId];
+                
+                // Toggle Minus Button
+                if (selectedQuantities[productId] > 1) {
+                    document.getElementById(`minus-btn-${productId}`).removeAttribute('disabled');
+                }
+
+                // Toggle Plus Button
+                if (selectedQuantities[productId] === maxStock) {
+                    document.getElementById(`plus-btn-${productId}`).setAttribute('disabled', 'true');
+                }
+            }
+        }
+
+        function decrementQty(productId) {
+            if (!selectedQuantities[productId]) {
+                selectedQuantities[productId] = 1;
+            }
+
+            if (selectedQuantities[productId] > 1) {
+                selectedQuantities[productId]--;
+                document.getElementById(`qty-val-${productId}`).innerText = selectedQuantities[productId];
+
+                // Toggle Plus Button (it must be below max now)
+                document.getElementById(`plus-btn-${productId}`).removeAttribute('disabled');
+
+                // Toggle Minus Button
+                if (selectedQuantities[productId] === 1) {
+                    document.getElementById(`minus-btn-${productId}`).setAttribute('disabled', 'true');
+                }
+            }
+        }
+
+        function buyNow(productId) {
+            const qty = selectedQuantities[productId] || 1;
+            window.location.href = `/checkout?productId=${productId}&quantity=${qty}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review & Secure Pay | FlashDash Deals</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-rose-500 selection:text-white">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-slate-900/80 border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-2 group">
+                <span class="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-orange-400 to-amber-300">
+                    ⚡ FLASHDASH DEALS
+                </span>
+            </a>
+            <a href="/" class="text-sm font-medium text-slate-400 hover:text-slate-200 transition">
+                ← Back to Store
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN BODY -->
+    <main class="flex-grow max-w-3xl w-full mx-auto px-4 py-12 flex flex-col justify-center">
+
+        <% if (error) { %>
+            <div class="bg-red-950/40 border border-red-500/30 text-red-300 px-6 py-5 rounded-2xl mb-8">
+                <p class="font-bold text-red-200 text-lg">Checkout loading failed</p>
+                <p class="text-sm mt-1 leading-relaxed"><%= error %></p>
+                <a href="/" class="inline-block mt-4 text-sm font-semibold underline text-red-400 hover:text-red-300">Return to home page</a>
+            </div>
+        <% } else { %>
+            
+            <!-- REVIEW ORDER TITLE -->
+            <div class="mb-8 text-center sm:text-left">
+                <h1 class="text-3xl font-black tracking-tight mb-2">Secure Checkout</h1>
+                <p class="text-slate-400 text-sm">Please review your order details before confirming the secure transaction.</p>
+            </div>
+
+            <!-- GLASSMORPHIC SUMMARY BOX -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl p-6 sm:p-8 relative">
+                <div class="absolute -right-16 -top-16 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl"></div>
+                
+                <h2 class="text-lg font-bold uppercase tracking-wider text-slate-400 mb-6 border-b border-slate-800 pb-4">
+                    Order Summary
+                </h2>
+
+                <div class="space-y-6">
+                    <!-- Product Metadata -->
+                    <div class="flex items-start justify-between">
+                        <div class="space-y-1">
+                            <h3 class="text-xl font-bold text-slate-200"><%= product.name %></h3>
+                            <p class="text-slate-400 text-sm max-w-md"><%= product.description %></p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm text-slate-400 font-medium">Unit Price</span>
+                            <p class="text-lg font-bold text-slate-200">₹<%= product.price.toFixed(2) %></p>
+                        </div>
+                    </div>
+
+                    <!-- Quantity Detail -->
+                    <div class="flex justify-between items-center bg-slate-950/60 border border-slate-850 p-4 rounded-2xl">
+                        <span class="text-sm text-slate-400 font-medium">Requested Quantity</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-3 py-1 rounded-lg bg-slate-800 text-slate-200 font-bold text-sm">
+                                <%= quantity %>
+                            </span>
+                            <span class="text-xs text-slate-500">units</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Cost Calculation -->
+                    <div class="border-t border-slate-800 pt-6 flex items-baseline justify-between">
+                        <span class="text-md text-slate-300 font-semibold uppercase tracking-wider">Total Amount</span>
+                        <div class="text-right">
+                            <span class="text-slate-100 text-4xl font-extrabold tracking-tight bg-clip-text bg-gradient-to-r from-slate-50 to-slate-200">
+                                ₹<%= totalPrice %>
+                            </span>
+                            <p class="text-xs text-rose-400 font-medium mt-1">Includes local tax & stock reservation</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pay Button CTA -->
+                <div class="mt-8">
+                    <button 
+                        id="pay-btn"
+                        onclick="startPaymentSimulation()"
+                        class="w-full py-4 rounded-2xl font-extrabold text-lg bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white shadow-xl shadow-rose-950/20 transition-all transform hover:scale-[1.01] flex items-center justify-center space-x-2"
+                    >
+                        <span>🔒 Confirm & Pay ₹<%= totalPrice %></span>
+                    </button>
+                    <p class="text-center text-xs text-slate-500 mt-4">
+                        Payments are secured via simulated banking gateways. Stock reserved dynamically.
+                    </p>
+                </div>
+            </div>
+        <% } %>
+    </main>
+
+    <!-- FULL SCREEN SPINNER OVERLAY -->
+    <div 
+        id="spinner-overlay" 
+        class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center"
+    >
+        <!-- Modern Spinner Ring -->
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 rounded-full border-4 border-slate-800"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-t-rose-500 border-r-orange-400 animate-spin"></div>
+        </div>
+        <p class="text-xl font-bold tracking-tight text-slate-200 mt-8 animate-pulse">
+            Simulating Secure Payment Gateway...
+        </p>
+        <p class="text-sm text-slate-500 mt-2">
+            Verifying bank credentials & inventory stocks
+        </p>
+    </div>
+
+    <!-- SUCCESS MODAL POPUP -->
+    <div 
+        id="success-modal" 
+        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+    >
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-8 shadow-2xl relative overflow-hidden transform scale-95 transition-all text-center">
+            <div class="absolute -left-12 -top-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+            
+            <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
+                🎉
+            </div>
+            
+            <h2 class="text-2xl font-extrabold tracking-tight text-slate-100 mb-3">
+                Order Placed Successfully!
+            </h2>
+            <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                Payment successful! Your order has been registered in the database, and the stock inventory has been updated.
+            </p>
+            
+            <div class="bg-slate-950 border border-slate-850 p-4 rounded-2xl mb-6 text-left text-xs text-slate-400 space-y-2">
+                <div class="flex justify-between"><span>Status:</span><span class="text-emerald-400 font-bold">COMPLETED</span></div>
+                <div class="flex justify-between"><span>Gateway:</span><span>UPI Tokenized Gateway</span></div>
+                <div class="flex justify-between"><span>Order Reference:</span><span id="order-ref-val" class="font-mono text-slate-200">#</span></div>
+            </div>
+
+            <button 
+                onclick="goToHome()"
+                class="w-full py-3.5 px-4 rounded-xl font-bold bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg transition"
+            >
+                Return to Store Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- ERROR MODAL POPUP -->
+    <div 
+        id="error-modal" 
+        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+    >
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-8 shadow-2xl relative overflow-hidden text-center">
+            <div class="absolute -left-12 -top-12 w-32 h-32 bg-red-500/10 rounded-full blur-2xl"></div>
+            
+            <div class="w-16 h-16 bg-red-500/10 text-red-400 border border-red-500/20 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
+                ❌
+            </div>
+            
+            <h2 class="text-2xl font-extrabold tracking-tight text-slate-100 mb-3">
+                Transaction Refused
+            </h2>
+            <p id="error-message-text" class="text-slate-400 text-sm leading-relaxed mb-6">
+                Unfortunately, the order could not be completed. The inventory may have been depleted by another buyer.
+            </p>
+
+            <button 
+                onclick="goToHome()"
+                class="w-full py-3.5 px-4 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
+            >
+                Return to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-6 text-center text-sm text-slate-500">
+        <p>&copy; 2026 FlashDash Deals Inc. All transaction channels are simulated sandbox nodes.</p>
+    </footer>
+
+    <!-- CLIENT SCRIPT -->
+    <script>
+        const productId = "<%= product ? product.id : '' %>";
+        const quantity = "<%= quantity %>";
+
+        function startPaymentSimulation() {
+            // Disable payment button to avoid duplicate submissions
+            document.getElementById('pay-btn').setAttribute('disabled', 'true');
+            
+            // Show Spinner Overlay
+            document.getElementById('spinner-overlay').classList.remove('hidden');
+
+            // Wait exactly 2 seconds
+            setTimeout(executeCheckoutRequest, 2000);
+        }
+
+        async function executeCheckoutRequest() {
+            try {
+                // Post payment transaction to Order service (mapped to host port 8082)
+                const response = await fetch('http://localhost:8082/api/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        productId: parseInt(productId, 10),
+                        quantity: parseInt(quantity, 10)
+                    })
+                });
+
+                // Hide Spinner Overlay
+                document.getElementById('spinner-overlay').classList.add('hidden');
+
+                if (response.ok) {
+                    const orderData = await response.json();
+                    
+                    // Populate details
+                    document.getElementById('order-ref-val').innerText = `#TXN-${orderData.id}-${Date.now().toString().slice(-6)}`;
+                    
+                    // Show success modal
+                    document.getElementById('success-modal').classList.remove('hidden');
+                } else {
+                    let errMsg = "An unexpected error occurred.";
+                    try {
+                        const errData = await response.json();
+                        errMsg = errData.message || errMsg;
+                    } catch (e) {
+                        const rawText = await response.text();
+                        errMsg = rawText || errMsg;
+                    }
+                    
+                    // Show error modal with downstream message
+                    document.getElementById('error-message-text').innerText = errMsg;
+                    document.getElementById('error-modal').classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error('AJAX Error connecting to Order Service:', err);
+                
+                // Hide Spinner Overlay
+                document.getElementById('spinner-overlay').classList.add('hidden');
+                
+                // Show error modal
+                document.getElementById('error-message-text').innerText = 
+                    "Unable to communicate with the Order Microservice. Please verify order-service is running on host port 8082.";
+                document.getElementById('error-modal').classList.remove('hidden');
+            }
+        }
+
+        function goToHome() {
+            window.location.href = "/";
+        }
+    </script>
+</body>
+</html>

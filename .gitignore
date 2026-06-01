@@ -1,0 +1,22 @@
+# Maven build target directory
+**/target/
+**/*.class
+
+# Node.js dependencies
+**/node_modules/
+**/npm-debug.log
+
+# IDE files and workspace settings
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log

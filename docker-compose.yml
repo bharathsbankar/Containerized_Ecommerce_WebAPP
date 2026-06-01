@@ -1,0 +1,136 @@
+version: '3.8'
+
+services:
+  # =========================================================================
+  # CATALOG DATABASE LAYER (catalog_net)
+  # =========================================================================
+  catalog-db:
+    image: mysql:8.0
+    container_name: catalog-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: catalog_db
+    volumes:
+      - ./catalog-db-init:/docker-entrypoint-initdb.d
+    networks:
+      - catalog_net
+    # Port 3306 is NOT mapped to the host (stays private to catalog_net)
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Adminer Web GUI for Catalog Database
+  catalogDB_GUI:
+    image: adminer:latest
+    container_name: catalogDB_GUI
+    ports:
+      - "8083:8080"
+    networks:
+      - catalog_net
+    depends_on:
+      - catalog-db
+
+  # =========================================================================
+  # ORDER DATABASE LAYER (order_net)
+  # =========================================================================
+  order-db:
+    image: mysql:8.0
+    container_name: order-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: order_db
+    networks:
+      - order_net
+    # Port 3306 is NOT mapped to the host (stays private to order_net)
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Adminer Web GUI for Order Database
+  orderDB_GUI:
+    image: adminer:latest
+    container_name: orderDB_GUI
+    ports:
+      - "8084:8080"
+    networks:
+      - order_net
+    depends_on:
+      - order-db
+
+  # =========================================================================
+  # CATALOG SERVICE (catalog_net, api_net)
+  # =========================================================================
+  catalog-service:
+    build:
+      context: ./catalog-service
+      dockerfile: Dockerfile
+    container_name: catalog-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://catalog-db:3306/catalog_db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+    networks:
+      - catalog_net
+      - api_net
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+
+  # =========================================================================
+  # ORDER SERVICE (order_net, api_net)
+  # =========================================================================
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://order-db:3306/order_db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+    networks:
+      - order_net
+      - api_net
+    depends_on:
+      order-db:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+
+  # =========================================================================
+  # WEB FRONTEND (api_net)
+  # =========================================================================
+  web-frontend:
+    build:
+      context: ./web-frontend
+      dockerfile: Dockerfile
+    container_name: web-frontend
+    ports:
+      - "5000:5000"
+    networks:
+      - api_net
+    depends_on:
+      - catalog-service
+      - order-service
+
+# ===========================================================================
+# NETWORKS DEFINITION
+# ===========================================================================
+networks:
+  catalog_net:
+    driver: bridge
+    name: catalog_net
+  order_net:
+    driver: bridge
+    name: order_net
+  api_net:
+    driver: bridge
+    name: api_net
