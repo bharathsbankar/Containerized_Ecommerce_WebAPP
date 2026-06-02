@@ -11,6 +11,7 @@ RUN npm install --production
 # Copy source code
 COPY server.js ./
 COPY views ./views
+COPY public ./public
 
 EXPOSE 5000
 

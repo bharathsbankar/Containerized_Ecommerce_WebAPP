@@ -24,7 +24,7 @@ The project is structured as a multi-directory monorepo containing three primary
 * **Runtime**: Node.js (`node:18-alpine`)
 * **Web Framework**: Express.js (`^4.19.2`)
 * **Template Engine**: EJS (`^3.1.10`) for secure server-rendered pages
-* **Styling**: Vanilla CSS + Tailwind CSS CDN (v3.x)
+* **Styling**: Vanilla CSS + Local Standalone Tailwind JS Engine (served statically from `/public/js/tailwind.js` for 100% offline capability)
 * **Http Client**: Axios (`^1.7.2`) for server-to-server data fetching and API Gateway proxying (BFF pattern)
 
 ### Catalog Microservice (`catalog-service/`)
@@ -63,6 +63,9 @@ The platform is segregated across three isolated Docker virtual bridge networks:
 │   ├── Dockerfile           # Alpine node container builder
 │   ├── package.json         # Front-end manifest
 │   ├── server.js            # Express router & BFF proxies (handles relative /api/orders and /api/products)
+│   ├── public/              # Static local assets (BFF Proxy static mounts)
+│   │   └── js/
+│   │       └── tailwind.js  # Standalone Tailwind CSS compiler for 100% offline support
 │   └── views/
 │       ├── index.ejs        # Main deals dashboard with bounds-validated quantity controllers (Rupee ₹ currency)
 │       ├── checkout.ejs     # Secure payment simulator (2-second spinner, client relative POST)
@@ -110,6 +113,7 @@ All components have been fully coded, validated, compiled, and successfully push
 * **Rupees Translation**: Replaced all USD ($) symbols with Indian Rupees (**₹**).
 * **Secure BFF Proxy Migration**: Migrated the system to the **Backend-for-Frontend (BFF)** proxy pattern. Browser client AJAX scripts use relative URLs (`/api/orders` and `/api/products`), communicating solely with the publicly exposed Node.js gateway (Port 5000). Express server proxies these requests internally over the virtual network to ports `8081` and `8082`, hiding the microservices and resolving CORS securely.
 * **Azure Container Apps Deployment Blueprints**: Compiled a complete Azure CLI deployment script in **`AZURE_DEPLOY.md`** to automate resource setup, image compiles in Azure Container Registry, persistent storage mounts using Azure Files Share, and internal/external ingresses.
+* **Complete Offline CSS Support**: Embedded the standalone Tailwind JS compilation engine directly into the frontend container's public assets (`/public/js/tailwind.js`). Modified EJS templates to reference local script routes, ensuring perfect styling renders even in zero-internet sandbox environments.
 
 ---
 
@@ -123,3 +127,4 @@ Any downstream agent or developer editing this codebase must respect the followi
 > 3. **High-Concurrency Decoupling**: If modifying stock deduction logic, never subtract stock in Java memory. You must perform deduction using the atomic repository query or a database lock to prevent race conditions.
 > 4. **Keep Prices Immutable**: When saving an order, always snap the unit price from the Catalog service via Feign at the exact millisecond of checkout. Never recalculate pricing on-the-fly from the catalog at a later date, as catalog prices will fluctuate.
 > 5. **BFF Ingress Boundary**: The client browser must NEVER communicate directly with ports `8081` or `8082` in EJS/HTML scripts. All browser-side AJAX requests must be sent relative to the host (`/api/products` and `/api/orders`), allowing the Express gateway to proxy them internally. This protects microservice ingress ports in cloud environments.
+> 6. **Static Resource Isolation**: All public scripts and styling engines must be served locally from `/public` to ensure offline portability inside container networks. Do not use external CSS or JS CDN URLs.
