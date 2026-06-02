@@ -55,7 +55,6 @@ The platform is segregated across three isolated Docker virtual bridge networks:
 ```
 ├── docker-compose.yml       # Primary Docker orchestration configuration
 ├── .gitignore               # Clean git exclusion policies (excludes Java target/ and Node node_modules/)
-├── AZURE_DEPLOY.md          # Step-by-step Azure Container Apps deployment script
 ├── AGENTS.md                # AI handoff blueprint (this file)
 ├── catalog-db-init/
 │   └── init.sql             # Catalog schema definition and SQL seeding
@@ -112,7 +111,6 @@ All components have been fully coded, validated, compiled, and successfully push
 * **Express Admin CRUD**: Added a fully featured AJAX Admin Panel at `http://localhost:5000/admin` allowing developers to Add, Edit, and Delete products dynamically.
 * **Rupees Translation**: Replaced all USD ($) symbols with Indian Rupees (**₹**).
 * **Secure BFF Proxy Migration**: Migrated the system to the **Backend-for-Frontend (BFF)** proxy pattern. Browser client AJAX scripts use relative URLs (`/api/orders` and `/api/products`), communicating solely with the publicly exposed Node.js gateway (Port 5000). Express server proxies these requests internally over the virtual network to ports `8081` and `8082`, hiding the microservices and resolving CORS securely.
-* **Azure Container Apps Deployment Blueprints**: Compiled a complete Azure CLI deployment script in **`AZURE_DEPLOY.md`** to automate resource setup, image compiles in Azure Container Registry, persistent storage mounts using Azure Files Share, and internal/external ingresses.
 * **Complete Offline CSS Support**: Embedded the standalone Tailwind JS compilation engine directly into the frontend container's public assets (`/public/js/tailwind.js`). Modified EJS templates to reference local script routes, ensuring perfect styling renders even in zero-internet sandbox environments.
 
 ---
