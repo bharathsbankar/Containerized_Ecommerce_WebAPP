@@ -1,6 +1,6 @@
 # ⚡ FlashDash Deals - High-Concurrency Flash Sale Platform
 
-Welcome to **FlashDash Deals**, a production-grade, containerized microservices platform designed to handle extremely high-traffic shopping rushes (flash sales) safely and reliably. 
+Welcome to **FlashDash Deals**, a production-grade, containerized microservices platform designed to handle extremely high-traffic shopping rushes (flash sales) safely and reliably.
 
 The system employs advanced database-level concurrency control, strict transactional rollbacks, private network isolation, and a Backend-for-Frontend (BFF) gateway to guarantee inventory safety and system security under parallel heavy loads.
 
@@ -24,7 +24,7 @@ The platform separates high-read product queries from write-heavy purchases usin
   │                   │                      │            │
   │                   ▼                      ▼            │
   │     ┌──────────────────────────┐   ┌──────────────────┐
-  │     │ catalog-service (8081)   │   │  order-service   │
+  │     │      catalog-service     │   │   order-service  │
   │     └─────────────┬────────────┘   └────────┬─────────┘
   │                   │                         │         │
   ====================│=========================│==========
@@ -39,10 +39,10 @@ The platform separates high-read product queries from write-heavy purchases usin
 
 ## 🛠️ Technology Stack
 
-* **Frontend Layer**: Node.js (`v18-alpine`), Express.js, server-rendered EJS templates. Styled using a statically served, local **Tailwind CSS standalone engine** for **100% offline capability**.
-* **Catalog Microservice**: Java 17, Spring Boot 3.2.5, Spring Data JPA, Hibernate, MySQL Connector/J.
-* **Order Microservice**: Java 17, Spring Boot 3.2.5, Spring Cloud OpenFeign (declarative internal REST client), JPA.
-* **Database & DevOps Layer**: MySQL 8.0 databases, Adminer (database web GUIs), Docker, and Docker Compose orchestrating three isolated networks (`catalog_net`, `order_net`, and `api_net`).
+- **Frontend Layer**: Node.js (`v18-alpine`), Express.js, server-rendered EJS templates. Styled using a statically served, local **Tailwind CSS standalone engine** for **100% offline capability**.
+- **Catalog Microservice**: Java 17, Spring Boot 3.2.5, Spring Data JPA, Hibernate, MySQL Connector/J.
+- **Order Microservice**: Java 17, Spring Boot 3.2.5, Spring Cloud OpenFeign (declarative internal REST client), JPA.
+- **Database & DevOps Layer**: MySQL 8.0 databases, Adminer (database web GUIs), Docker, and Docker Compose orchestrating three isolated networks (`catalog_net`, `order_net`, and `api_net`).
 
 ---
 
@@ -68,6 +68,12 @@ docker compose up -d --build
 ```
 
 ### Access Endpoints:
-* **Customer Dashboard & Admin Panel**: [http://localhost:5000](http://localhost:5000)
-* **Catalog DB Web GUI**: [http://localhost:8083](http://localhost:8083)
-* **Order DB Web GUI**: [http://localhost:8084](http://localhost:8084)
+
+- **Customer Dashboard & Admin Panel**: [http://localhost:5000](http://localhost:5000)
+- **Catalog DB Web GUI**: [http://localhost:8083](http://localhost:8083)
+
+Server: catalog-db | User: root | Password: rootpassword | Database: catalog_db
+
+- **Order DB Web GUI**: [http://localhost:8084](http://localhost:8084)
+
+Server: order-db | User: root | Password: rootpassword | Database: order_db
